@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzle O'yini</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 350px;
+    box-shadow: 0 10px 30px #3335;
+}
+
+h1 {
+    color: #5b4acb;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.tile {
+    height: 85px;
+    background: #667eea;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tile:hover {
+    background: #4c5fd5;
+    transform: scale(1.04);
+}
+
+.empty {
+    background: #eee;
+    cursor: default;
+}
+
+button.shuffle {
+    background: #764ba2;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button.shuffle:hover {
+    background: #5c3484;
+}
+
+#message {
+    color: green;
+    font-weight: bold;
+    min-height: 24px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🧩 Puzzle Game</h1>
+
+    <p>Raqamlarni tartib bilan joylashtiring!</p>
+
+    <h3>Yurishlar: <span id="moves">0</span></h3>
+
+    <div class="board" id="board"></div>
+
+    <button class="shuffle" onclick="shuffle()">
+        🔄 Aralashtirish
+    </button>
+
+    <p id="message"></p>
+</div>
+
+<script>
+let numbers = [1,2,3,4,5,6,7,8,0];
+let moves = 0;
+
+function render() {
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+
+    numbers.forEach((num, index) => {
+        const tile = document.createElement("button");
+
+        tile.className = num === 0
+            ? "tile empty"
+            : "tile";
+
+        tile.textContent = num === 0 ? "" : num;
+
+        tile.onclick = () => move(index);
+
+        board.appendChild(tile);
+    });
+
+    document.getElementById("moves").textContent = moves;
+}
+
+function move(index) {
+    const emptyIndex = numbers.indexOf(0);
+
+    const row = Math.floor(index / 3);
+    const col = index % 3;
+
+    const emptyRow = Math.floor(emptyIndex / 3);
+    const emptyCol = emptyIndex % 3;
+
+    if (
+        Math.abs(row - emptyRow) +
+        Math.abs(col - emptyCol) === 1
+    ) {
+        [numbers[index], numbers[emptyIndex]] =
+        [numbers[emptyIndex], numbers[index]];
+
+        moves++;
+        render();
+        checkWin();
+    }
+}
+
+function shuffle() {
+    // Faqat qonuniy yurishlar orqali aralashtirish
+    numbers = [1,2,3,4,5,6,7,8,0];
+
+    for (let i = 0; i < 150; i++) {
+        const empty = numbers.indexOf(0);
+        const neighbors = [];
+
+        if (empty % 3 !== 0)
+            neighbors.push(empty - 1);
+
+        if (empty % 3 !== 2)
+            neighbors.push(empty + 1);
+
+        if (empty >= 3)
+            neighbors.push(empty - 3);
+
+        if (empty < 6)
+            neighbors.push(empty + 3);
+
+        const next = neighbors[
+            Math.floor(Math.random() * neighbors.length)
+        ];
+
+        [numbers[empty], numbers[next]] =
+        [numbers[next], numbers[empty]];
+    }
+
+    moves = 0;
+    document.getElementById("message").textContent = "";
+    render();
+}
+
+function checkWin() {
+    if (numbers.join(",") === "1,2,3,4,5,6,7,8,0") {
+        document.getElementById("message").textContent =
+            "🎉 Tabriklaymiz! Siz g‘olib bo‘ldingiz!";
+    }
+}
+
+render();
+shuffle();
+</script>
+
+</body>
+</html>
